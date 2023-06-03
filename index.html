@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>What ice cream has this color?</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fast-average-color@9.3.0/dist/index.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" />
+
+    <style>
+        body {
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        #color-picker {
+            margin: 10px 0;
+        }
+
+        #images {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        #images img {
+            max-width: 100px;
+            margin: 10px;
+        }
+
+        #image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 10px;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 5px solid black;
+        }
+
+        #image-grid img {
+            max-width: 225px;
+            max-height: 225px;
+            object-fit: contain;
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>What ice cream has this color?</h1>
+    <input type="color" id="color-picker" value="#ffffff">
+    <button id="camera-button">Camera</button>
+    <h2 id="flavor-title"></h2>
+    <!-- add square in unicode -->
+    <h2 id="flavor-subtitle">ChatGPT said:<span id="chatgpt-color"
+            style="display: inline-block; width: 20px; height: 20px; margin-left: 10px;"></span>
+    </h2>
+    <div id="image-grid"></div>
+
+    <script>
+        $(function () {
+            async function loadAndProcessResults() {
+                try {
+                    // Fetch JSON files
+                    const [data, otherColors] = await Promise.all([
+                        fetch('results.json').then(response => response.json()),
+                        fetch('flavors.json').then(response => response.json())
+                    ]);
+                    const averages = {};
+
+                    // Iterate over each flavor in the data
+                    for (let flavor in data) {
+                        if (data.hasOwnProperty(flavor)) {
+                            let rTotal = 0, gTotal = 0, bTotal = 0;
+                            const pictures = data[flavor];
+
+                            // Iterate over each picture for the flavor
+                            for (let i = 0; i < pictures.length; i++) {
+                                const rgb = pictures[i][3];  // RGB is at index 3
+                                rTotal += rgb[0];
+                                gTotal += rgb[1];
+                                bTotal += rgb[2];
+                            }
+
+                            // Compute the averages
+                            const rAvg = rTotal / pictures.length;
+                            const gAvg = gTotal / pictures.length;
+                            const bAvg = bTotal / pictures.length;
+
+                            averages[flavor] = [rAvg, gAvg, bAvg];
+                        }
+                    }
+
+                    return [data, averages, otherColors];  // Returns the averages
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            let data, averages, otherColors;
+            loadAndProcessResults().then(result => {
+                [data, averages, otherColors] = [...result];
+
+                console.log(otherColors)
+                const averageColor = new FastAverageColor();
+                function displayFlavorTitle(flavor, color) {
+                    const title = document.getElementById('flavor-title');
+                    title.textContent = flavor;
+                    const flavorColor = document.createElement('span');
+                    flavorColor.style.display = 'inline-block';
+                    flavorColor.style.width = '20px';
+                    flavorColor.style.height = '20px';
+                    flavorColor.style.marginLeft = '10px';
+                    flavorColor.backgroundColor = rgbToHex(color);
+                    title.appendChild(flavorColor);
+                    flavorColor.style.backgroundColor = rgbToHex(color);
+                    const chatgptColor = document.getElementById('chatgpt-color');
+                    chatgptColor.style.backgroundColor = otherColors[flavor];
+                }
+                function displayImages(flavor) {
+                    const imageGrid = document.getElementById('image-grid');
+                    imageGrid.innerHTML = "";  // Clear any existing images
+
+                    // Add new images
+                    for (let i = 0; i < data[flavor].length; i++) {
+
+                        const img = document.createElement('img');
+                        img.src = '/imgs/' + data[flavor][i][0];
+                        img.alt = data[flavor][i][2];
+                        // add link to image
+                        const link = document.createElement('a');
+                        link.href = data[flavor][i][1];
+                        link.target = '_blank';
+                        link.appendChild(img);
+                        imageGrid.appendChild(link);
+                    }
+                }
+
+                $('#color-picker').on('change', function () {
+                    const color = $(this).val();
+                    nearestColor(color, averages).then((ans) => {
+                        let [flavor, color] = [...ans];
+                        console.log(ans)
+                        displayFlavorTitle(flavor, color);
+                        displayImages(flavor);
+                    });
+                });
+                function randomKey(averages) {
+                    const keys = Object.keys(averages);
+                    return keys[Math.floor(Math.random() * keys.length)];
+                };
+                flavor = randomKey(averages);
+                $('#color-picker').val(rgbToHex(averages[flavor]));
+                $('#color-picker').trigger('change');
+
+                $('#camera-button').on('click', function () {
+                    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                        const video = document.createElement('video');
+                        video.srcObject = stream;
+                        video.play();
+
+                        setTimeout(() => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight;
+                            canvas.getContext('2d').drawImage(video, 0, 0);
+
+                            const color = averageColor.getColor(canvas).hex;
+                            $('#color-picker').val(color);
+                            $('#color-picker').trigger('change');
+                            video.pause();
+                            stream.getTracks()[0].stop();
+                        }, 2000);
+                    }).catch(err => console.log(err));
+                });
+
+                function hexToRgb(hex) {
+                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                    return result ? [
+                        parseInt(result[1], 16) / 255,
+                        parseInt(result[2], 16) / 255,
+                        parseInt(result[3], 16) / 255
+                    ] : null;
+                }
+                function rgbToHex(rgb) {
+                    rgb = rgb.map(x => Math.round(x * 255));
+                    return "#" + ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1);
+                }
+                async function nearestColor(inputHex, averages) {
+                    const inputRGB = hexToRgb(inputHex);
+                    let minDistance = Infinity;
+                    let nearestFlavor;
+
+                    for (let flavor in averages) {
+                        if (averages.hasOwnProperty(flavor)) {
+                            const avgRGB = averages[flavor];
+                            const distance = Math.sqrt(
+                                Math.pow(inputRGB[0] - avgRGB[0], 2) +
+                                Math.pow(inputRGB[1] - avgRGB[1], 2) +
+                                Math.pow(inputRGB[2] - avgRGB[2], 2)
+                            );
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                nearestFlavor = flavor;
+                            }
+                        }
+                    }
+                    return [nearestFlavor, averages[nearestFlavor]];
+                }
+            });
+
+        });
+
+
+    </script>
+</body>
+
+</html>

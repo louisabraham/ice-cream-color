@@ -1,0 +1,75 @@
+Vanilla - #F3E5AB
+Chocolate - #4B3013
+Strawberry - #FF8C95
+Mint Chocolate Chip - #649568
+Butter Pecan - #CD853F
+Cookies and Cream - #E4E5E2
+Rocky Road - #6B3E26
+Chocolate Chip - #A47549
+Cookie Dough - #D2B48C
+Pistachio - #93C572
+Peanut Butter - #FFE5B4
+Salted Caramel - #ED9121
+Coffee - #6F4E37
+Raspberry - #E30B5D
+Coconut - #FFF8E7
+Lemon - #FFFACD
+Mango - #FFC324
+Green Tea - #B5C587
+Cherry - #CF1020
+Rum Raisin - #8B4513
+Maple Walnut - #D2691E
+Mocha - #905D5D
+Pralines and Cream - #FFDEAD
+Black Raspberry - #430541
+Toffee - #B87333
+Cinnamon - #D2691E
+Peppermint - #98FF98
+Blueberry - #4F86F7
+Black Cherry - #8C004B
+Cotton Candy - #FFBCD9
+Almond - #EBE5D5
+Banana - #FFE135
+Pumpkin - #FF7518
+Lavender - #E6E6FA
+Honey - #FDE910
+Bubblegum - #FF69AF
+Earl Grey - #D0F0C0
+Chocolate Fudge Brownie - #492615
+Mint - #98FF98
+Key Lime Pie - #E0FFB3
+Pomegranate - #8B0000
+Dulce De Leche - #FFEBCD
+White Chocolate Raspberry - #FFE4E1
+Caramel Apple - #8B4513
+Peach - #FFE5B4
+Cappuccino - #8B4513
+Pineapple - #FFE234
+Passion Fruit - #FF7518
+Dark Chocolate - #321414
+Creamsicle - #FFA500
+Lychee - #F5F5DC
+Cheesecake - #FFF8DC
+Espresso - #4D220E
+Lemon Meringue - #FFFACD
+White Chocolate - #F8F8FF
+Grape - #6F2DA8
+Watermelon - #FC6C85
+Chai Tea - #D2B48C
+Raspberry Truffle - #8B0000
+Green Apple - #9DE093
+Hibiscus - #E30B5D
+Rose - #FF007F
+Black Sesame - #3C3C3B
+Peanut Butter and Jelly - #CD853F
+Ginger - #FFD700
+Mango Chili - #FF4500
+Kiwi - #8EE53F
+Milk Chocolate - #7B3F00
+Coconut Lime - #BFFF00
+Orange Blossom - #FFA500
+Thai Tea - #FF5500
+Avocado - #568203
+Blue Moon - #ADD8E6
+Boysenberry - #873260
+Fig and Honey - #801818
